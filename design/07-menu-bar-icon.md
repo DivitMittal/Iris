@@ -132,6 +132,39 @@ Visual:
 
 ---
 
+### Option E: Eye of Horus
+
+Ancient Egyptian symbol featuring a stylized eye with distinctive decorative markings: curved eyebrow above, teardrop marking below, and side decorative element.
+
+```
+Visual:
+     ╱───╲
+    (  ●  )
+     │   │
+     •   •
+```
+
+**Implementation**: Custom `NSBezierPath` drawing:
+1. Draw almond-shaped eye outline using bezier curves
+2. Draw curved eyebrow above the eye
+3. Draw teardrop marking below (vertical line with small circle at bottom)
+4. Draw decorative side marking (spiral-like curve)
+5. Draw inner circle (iris) and filled pupil
+
+**Pros**:
+- Highly distinctive and recognizable symbol
+- Rich cultural/historical significance
+- Unique decorative elements make it stand out
+- Clearly reads as an eye symbol
+- Mystical/ancient aesthetic
+
+**Cons**:
+- More complex drawing with multiple elements
+- May be harder to see all details at very small sizes
+- Requires careful balance of elements for clarity
+
+---
+
 ## Implementation
 
 All options will be implemented in `MenuBarController.swift` with a selection mechanism to switch between them for comparison.
@@ -144,6 +177,7 @@ enum MenuBarIconStyle: Int {
     case neuralWeb = 1        // Option B: Neural Web
     case concentricRings = 2  // Option C: Concentric Rings
     case almondEye = 3        // Option D: Almond Eye (default)
+    case eyeOfHorus = 4       // Option E: Eye of Horus
 }
 
 func createMenuBarIcon(style: MenuBarIconStyle, size: CGSize) -> NSImage

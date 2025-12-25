@@ -8,6 +8,7 @@ enum MenuBarIconStyle: Int, CaseIterable {
     case neuralWeb = 1        // Option B: Neural web pattern
     case concentricRings = 2  // Option C: Concentric rings
     case almondEye = 3        // Option D: Stylized almond eye
+    case eyeOfHorus = 4       // Option E: Eye of Horus
 
     var displayName: String {
         switch self {
@@ -15,6 +16,7 @@ enum MenuBarIconStyle: Int, CaseIterable {
         case .neuralWeb: return "Neural Web"
         case .concentricRings: return "Concentric Rings"
         case .almondEye: return "Almond Eye"
+        case .eyeOfHorus: return "Eye of Horus"
         }
     }
 
@@ -121,6 +123,8 @@ class MenuBarController: NSObject {
             return createConcentricRingsIcon()
         case .almondEye:
             return createAlmondEyeIcon()
+        case .eyeOfHorus:
+            return createEyeOfHorusIcon()
         }
     }
 
@@ -393,6 +397,115 @@ class MenuBarController: NSObject {
                 )
             )
             pupilCircle.fill()
+
+            return true
+        }
+        return image
+    }
+
+    // Option E: Eye of Horus (ancient Egyptian symbol)
+    private func createEyeOfHorusIcon() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let image = NSImage(size: size, flipped: false) { rect in
+            let center = NSPoint(x: rect.midX, y: rect.midY)
+            let eyeWidth: CGFloat = 12.0
+            let eyeHeight: CGFloat = 6.5
+            let irisRadius: CGFloat = 2.5
+
+            NSColor.black.setStroke()
+            NSColor.black.setFill()
+
+            // Draw almond-shaped eye outline (thick lines)
+            let eyePath = NSBezierPath()
+
+            // Inner corner (left) and outer corner (right)
+            let innerCorner = NSPoint(x: center.x - eyeWidth / 2, y: center.y)
+            let outerCorner = NSPoint(x: center.x + eyeWidth / 2, y: center.y)
+
+            // Control points for top curve
+            let topControlLeft = NSPoint(x: center.x - eyeWidth / 4, y: center.y + eyeHeight / 2)
+            let topControlRight = NSPoint(x: center.x + eyeWidth / 4, y: center.y + eyeHeight / 2)
+
+            // Control points for bottom curve
+            let bottomControlLeft = NSPoint(x: center.x - eyeWidth / 4, y: center.y - eyeHeight / 2)
+            let bottomControlRight = NSPoint(x: center.x + eyeWidth / 4, y: center.y - eyeHeight / 2)
+
+            // Draw top eyelid
+            eyePath.move(to: innerCorner)
+            eyePath.curve(to: outerCorner, controlPoint1: topControlLeft, controlPoint2: topControlRight)
+
+            // Draw bottom eyelid
+            eyePath.curve(to: innerCorner, controlPoint1: bottomControlRight, controlPoint2: bottomControlLeft)
+
+            eyePath.lineWidth = 1.5
+            eyePath.stroke()
+
+            // Draw curved eyebrow above - starts from inner corner, arches up prominently
+            let eyebrowPath = NSBezierPath()
+            let eyebrowStart = NSPoint(x: innerCorner.x, y: innerCorner.y + eyeHeight / 2)
+            let eyebrowEnd = NSPoint(x: outerCorner.x - 1.0, y: outerCorner.y + eyeHeight / 2 + 0.5)
+            let eyebrowControl = NSPoint(x: center.x, y: center.y + eyeHeight / 2 + 3.0)
+            eyebrowPath.move(to: eyebrowStart)
+            eyebrowPath.curve(to: eyebrowEnd, controlPoint1: eyebrowControl, controlPoint2: eyebrowControl)
+            eyebrowPath.lineWidth = 1.5
+            eyebrowPath.stroke()
+
+            // Draw teardrop marking below inner corner (left side)
+            // Vertical line descending from inner corner
+            let teardropPath = NSBezierPath()
+            let teardropTop = NSPoint(x: innerCorner.x, y: innerCorner.y - eyeHeight / 2)
+            let teardropBottom = NSPoint(x: innerCorner.x, y: innerCorner.y - eyeHeight / 2 - 2.5)
+            teardropPath.move(to: teardropTop)
+            teardropPath.line(to: teardropBottom)
+            teardropPath.lineWidth = 1.5
+            teardropPath.stroke()
+
+            // Small circle attached at bottom, slightly offset to the right
+            let teardropCircleRadius: CGFloat = 1.0
+            let teardropCircle = NSBezierPath(
+                ovalIn: NSRect(
+                    x: teardropBottom.x + 0.5 - teardropCircleRadius,
+                    y: teardropBottom.y - teardropCircleRadius,
+                    width: teardropCircleRadius * 2,
+                    height: teardropCircleRadius * 2
+                )
+            )
+            teardropCircle.fill()
+
+            // Draw spiral marking below outer corner (right side)
+            // Extends down and curls inward to form tight spiral
+            let spiralPath = NSBezierPath()
+            let spiralStart = NSPoint(x: outerCorner.x, y: outerCorner.y - eyeHeight / 2)
+            let spiralMid = NSPoint(x: outerCorner.x + 0.5, y: outerCorner.y - eyeHeight / 2 - 1.5)
+            let spiralEnd = NSPoint(x: outerCorner.x - 0.5, y: outerCorner.y - eyeHeight / 2 - 2.5)
+
+            // Draw the spiral: down, then curl inward
+            spiralPath.move(to: spiralStart)
+            spiralPath.line(to: spiralMid)
+
+            // Create tight spiral/volute by drawing curved path that curls inward
+            let spiralControl1 = NSPoint(x: outerCorner.x + 1.0, y: outerCorner.y - eyeHeight / 2 - 2.0)
+            let spiralControl2 = NSPoint(x: outerCorner.x, y: outerCorner.y - eyeHeight / 2 - 2.5)
+            spiralPath.curve(to: spiralEnd, controlPoint1: spiralControl1, controlPoint2: spiralControl2)
+
+            // Continue the spiral inward
+            let spiralInner = NSPoint(x: outerCorner.x - 1.2, y: outerCorner.y - eyeHeight / 2 - 2.0)
+            let spiralInnerControl = NSPoint(x: outerCorner.x - 0.8, y: outerCorner.y - eyeHeight / 2 - 2.3)
+            spiralPath.curve(to: spiralInner, controlPoint1: spiralInnerControl, controlPoint2: spiralInnerControl)
+
+            spiralPath.lineWidth = 1.5
+            spiralPath.stroke()
+
+            // Draw filled iris circle (no separate pupil - just filled black circle)
+            let irisCircle = NSBezierPath(
+                ovalIn: NSRect(
+                    x: center.x - irisRadius,
+                    y: center.y - irisRadius,
+                    width: irisRadius * 2,
+                    height: irisRadius * 2
+                )
+            )
+            irisCircle.fill()
 
             return true
         }

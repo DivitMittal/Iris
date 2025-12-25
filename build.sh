@@ -36,6 +36,15 @@ if [ ! -d "Iris/Iris.xcodeproj" ]; then
     exit 1
 fi
 
+# Generate application icons before building
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/generate_icon.sh" ]; then
+    echo "🎨 Generating application icons..."
+    "$SCRIPT_DIR/generate_icon.sh"
+else
+    echo "⚠️  Warning: generate_icon.sh not found, skipping icon generation"
+fi
+
 # Navigate to project directory
 cd Iris
 

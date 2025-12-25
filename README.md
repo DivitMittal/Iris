@@ -27,7 +27,8 @@ principles and [design/](design/) for feature specifications.
 
 ### Homebrew (Recommended)
 
-Install via Homebrew using the personal tap:
+Install via Homebrew using the custom tap (you'll receive version updates
+automatically if you install it via Homebrew):
 
 ```bash
 brew tap ahmetb/iris https://github.com/ahmetb/Iris
