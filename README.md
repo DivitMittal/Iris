@@ -30,10 +30,15 @@ principles and [design/](design/) for feature specifications.
 1. Download the latest `Iris-vX.X.X.zip` from the [Releases](../../releases) page
 2. Unzip the file
 3. Move `Iris.app` to your Applications folder
-4. **First launch**: Right-click (or Control-click) on Iris.app and select "Open"
-5. Click "Open" in the security dialog
+4. ⚠️ **macOS will show a warning about the unsigned application binary**. This
+   is normal for open-source apps distributed outside the Mac App Store. To solve
+   this:
 
-> ⚠️ macOS may show a warning because the app isn't notarized. This is normal for open-source apps distributed outside the Mac App Store.
+   1. **First launch**: Right-click (or Control-click) on Iris.app and select "Open"
+   2. Click "Open" in the security dialog.
+   3. If this doesn't fix your problem, go to `System Settings` search for
+   `Gatekeeper` (which should be under "Privacy & Security" section) and you can
+   see an option to allow "Iris" app to run there under the "Security" section.
 
 ### Build from Source
 
