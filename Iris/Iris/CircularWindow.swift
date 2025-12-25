@@ -5,9 +5,14 @@ class CircularWindow: NSWindow {
 
     private let circularView: ResizableCircularView
     private var cameraManager: CameraManager
+    private var audioManager: AudioManager?
 
-    init(cameraManager: CameraManager, size: CGFloat = 200) {
+    // Menu provider for right-click context menu
+    var menuProvider: (() -> NSMenu?)?
+
+    init(cameraManager: CameraManager, audioManager: AudioManager? = nil, size: CGFloat = 200) {
         self.cameraManager = cameraManager
+        self.audioManager = audioManager
 
         let savedPosition = PreferencesManager.shared.windowPosition
         let screenRect = NSScreen.main?.visibleFrame ?? .zero
@@ -36,6 +41,7 @@ class CircularWindow: NSWindow {
 
         configureWindow()
         setupVideoPreview()
+        setupAudioVisualization()
     }
 
     private func configureWindow() {
@@ -47,6 +53,11 @@ class CircularWindow: NSWindow {
         self.isMovableByWindowBackground = false
         self.acceptsMouseMovedEvents = true
         self.contentView = circularView
+
+        // Set up right-click menu provider
+        circularView.menuProvider = { [weak self] in
+            self?.menuProvider?()
+        }
     }
 
     private func setupVideoPreview() {
@@ -54,14 +65,29 @@ class CircularWindow: NSWindow {
         circularView.setPreviewLayer(previewLayer)
     }
 
+    private func setupAudioVisualization() {
+        // Set up audio level callback to update waveform
+        audioManager?.audioLevelCallback = { [weak self] level in
+            self?.circularView.updateAudioLevel(level)
+        }
+    }
+
     func show() {
         self.orderFrontRegardless()
         cameraManager.startSession()
+
+        // Start audio visualization
+        audioManager?.startMonitoring()
+        circularView.startWaveAnimation()
     }
 
     func hide() {
         self.orderOut(nil)
         cameraManager.stopSession()
+
+        // Stop audio visualization
+        audioManager?.stopMonitoring()
+        circularView.stopWaveAnimation()
     }
 }
 
@@ -97,6 +123,9 @@ class ResizableCircularView: CircularContentView {
     private let maxSize: CGFloat = 600
 
     private var edgeHighlightLayer: CAShapeLayer?
+
+    // MARK: - Context Menu
+    var menuProvider: (() -> NSMenu?)?
 
     enum Quadrant {
         case topRight, topLeft, bottomRight, bottomLeft
@@ -209,6 +238,13 @@ class ResizableCircularView: CircularContentView {
             isHoveringInside = false
             updateCursor()
             updateEdgeHighlight()
+        }
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        // Show context menu on right-click
+        if let menu = menuProvider?() {
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
         }
     }
 

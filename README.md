@@ -1,6 +1,12 @@
 # Iris.app
 
-Iris is a macOS application that displays your webcam feed in a circular, always-on-top window.
+Iris is a macOS application that displays your webcam feed in a circular,
+always-on-top window. It's a replacement for **Pearl** or **Hand Mirror** apps.
+
+It's entirely coded by an LLM agent. See [AGENTS.md](AGENTS.md) for development
+principles and [design/](design/) for feature specifications.
+
+![Iris Screenshot](images/screenshot.png)
 
 ## Features
 
@@ -10,8 +16,10 @@ Iris is a macOS application that displays your webcam feed in a circular, always
 * **Resizable** - Drag from the edges of the circle to resize
 * **Toggle Visibility** - Click menu bar icon to show/hide window
 * **Camera Selection** - Choose from multiple camera sources
-* **Launch at Login** - Optionally start on system login
+* **Launch at Login** - Optionally, start on system login
 * **Persistent State** - Remembers size, position, and camera selection
+* **Sound Indicator** - Visual indicator around the mirror view to show when
+  microphone is picking up sound
 
 ## Requirements
 
@@ -27,6 +35,7 @@ Iris is a macOS application that displays your webcam feed in a circular, always
 1. Install Xcode from the Mac App Store
 2. Open Xcode and agree to the license agreement
 3. Set the command line tools path:
+
    ```bash
    sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
    ```
@@ -34,14 +43,9 @@ Iris is a macOS application that displays your webcam feed in a circular, always
 ### Build Commands
 
 ```bash
-# Build the app
-./build.sh
-
-# Build and run
-./run.sh
-
-# Clean build artifacts
-./clean.sh
+./build.sh # Build the app
+./run.sh # Build and run
+./clean.sh # Clean build artifacts
 ```
 
 The built application will be located at `Iris/build/Release/Iris.app`.
@@ -63,16 +67,23 @@ The built application will be located at `Iris/build/Release/Iris.app`.
 * **Resize**: Click and drag from the edge of the circle
 * **Hide**: Click the menu bar icon
 
+### Sound Indicator
+
+When the microphone is picking up sound, a visual indicator will appear around
+the mirror view. This feature is disabled by default.
+
 ## Camera Permissions
 
 On first launch, macOS will prompt you to grant camera access. If you deny permission:
+
 1. Open System Settings
 2. Go to Privacy & Security > Camera
 3. Enable camera access for Iris
 
 ## Development
 
-This is an LLM-agent-coded project. See [AGENTS.md](AGENTS.md) for development principles and [design/](design/) for feature specifications.
+This is an LLM-agent-coded project. See [AGENTS.md](AGENTS.md) for development
+principles and [design/](design/) for feature specifications.
 
 ### Project Structure
 

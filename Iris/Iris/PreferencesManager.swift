@@ -14,6 +14,7 @@ class PreferencesManager {
         static let windowY = "com.iris.app.windowY"
         static let windowVisible = "com.iris.app.windowVisible"
         static let selectedCameraID = "com.iris.app.selectedCameraID"
+        static let selectedMicrophoneID = "com.iris.app.selectedMicrophoneID"
         static let launchAtLogin = "com.iris.app.launchAtLogin"
         static let firstLaunch = "com.iris.app.firstLaunch"
     }
@@ -63,6 +64,16 @@ class PreferencesManager {
         }
         set {
             defaults.set(newValue, forKey: Keys.selectedCameraID)
+        }
+    }
+
+    // MARK: - Microphone Selection
+    var selectedMicrophoneID: String? {
+        get {
+            defaults.string(forKey: Keys.selectedMicrophoneID)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.selectedMicrophoneID)
         }
     }
 

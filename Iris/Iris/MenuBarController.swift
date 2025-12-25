@@ -8,6 +8,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
     private weak var circularWindow: CircularWindow?
     private var cameraManager: CameraManager
+    private var audioManager: AudioManager?
 
     // MARK: - Initialization
     init(cameraManager: CameraManager) {
@@ -28,6 +29,12 @@ class MenuBarController: NSObject {
             name: .AVCaptureDeviceWasDisconnected,
             object: nil
         )
+    }
+
+    func setAudioManager(_ audioManager: AudioManager) {
+        self.audioManager = audioManager
+        // Refresh menu
+        statusItem?.menu = createMenu()
     }
 
     deinit {
@@ -80,7 +87,7 @@ class MenuBarController: NSObject {
     }
 
     // MARK: - Menu Creation
-    private func createMenu() -> NSMenu {
+    func createMenu() -> NSMenu {
         let menu = NSMenu()
 
         // Toggle window item
@@ -96,7 +103,7 @@ class MenuBarController: NSObject {
         let toggleItem = NSMenuItem(
             title: toggleTitle,
             action: #selector(toggleWindow),
-            keyEquivalent: "h"
+            keyEquivalent: ""
         )
         toggleItem.target = self
         toggleItem.isEnabled = circularWindow != nil
@@ -109,6 +116,12 @@ class MenuBarController: NSObject {
         let cameraSubmenu = createCameraSubmenu()
         cameraMenuItem.submenu = cameraSubmenu
         menu.addItem(cameraMenuItem)
+
+        // Sound indicator submenu
+        let microphoneMenuItem = NSMenuItem(title: "Sound Indicator", action: nil, keyEquivalent: "")
+        let microphoneSubmenu = createMicrophoneSubmenu()
+        microphoneMenuItem.submenu = microphoneSubmenu
+        menu.addItem(microphoneMenuItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -170,6 +183,67 @@ class MenuBarController: NSObject {
         return menu
     }
 
+    private func createMicrophoneSubmenu() -> NSMenu {
+        let menu = NSMenu()
+
+        let currentDevice = audioManager?.currentDevice
+
+        // Disable indicator option
+        let disabledItem = NSMenuItem(
+            title: "Disable Indicator",
+            action: #selector(selectMicrophone(_:)),
+            keyEquivalent: ""
+        )
+        disabledItem.target = self
+        disabledItem.representedObject = AudioDevice.disabled
+        if currentDevice?.uid == "disabled" {
+            disabledItem.state = .on
+        }
+        menu.addItem(disabledItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        // System Default option
+        let defaultItem = NSMenuItem(
+            title: "System Default",
+            action: #selector(selectMicrophone(_:)),
+            keyEquivalent: ""
+        )
+        defaultItem.target = self
+        defaultItem.representedObject = AudioDevice.systemDefault
+        if currentDevice?.uid == "system-default" {
+            defaultItem.state = .on
+        }
+        menu.addItem(defaultItem)
+
+        let microphones = AudioManager.availableMicrophones()
+
+        if !microphones.isEmpty {
+            menu.addItem(NSMenuItem.separator())
+
+            for mic in microphones {
+                let item = NSMenuItem(
+                    title: mic.name,
+                    action: #selector(selectMicrophone(_:)),
+                    keyEquivalent: ""
+                )
+                item.target = self
+                item.representedObject = mic
+
+                // Checkmark for current microphone (only if not using system default or disabled)
+                if currentDevice?.uid != "system-default" &&
+                   currentDevice?.uid != "disabled" &&
+                   mic.id == currentDevice?.id {
+                    item.state = .on
+                }
+
+                menu.addItem(item)
+            }
+        }
+
+        return menu
+    }
+
     // MARK: - Actions
     @objc func statusItemClicked() {
         toggleWindow()
@@ -211,6 +285,27 @@ class MenuBarController: NSObject {
         }
     }
 
+    @objc func selectMicrophone(_ sender: NSMenuItem) {
+        guard let device = sender.representedObject as? AudioDevice else { return }
+        guard let audioManager = audioManager else { return }
+
+        Task {
+            do {
+                try await audioManager.switchToMicrophone(device)
+
+                // Update menu checkmarks on main thread
+                await MainActor.run {
+                    self.statusItem?.menu = self.createMenu()
+                }
+            } catch {
+                // Show error alert on main thread
+                await MainActor.run {
+                    self.showError("Failed to switch microphone: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
     @objc func toggleLaunchAtLogin() {
         if isLaunchAtLoginEnabled() {
             disableLaunchAtLogin()
@@ -224,6 +319,9 @@ class MenuBarController: NSObject {
     @objc func quit() {
         // Clean up camera resources
         cameraManager.stopSession()
+
+        // Clean up audio resources
+        audioManager?.stopMonitoring()
 
         // Quit app
         NSApplication.shared.terminate(nil)

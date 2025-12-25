@@ -39,16 +39,15 @@ fi
 # Navigate to project directory
 cd Iris
 
-# Build the project
+# Build the project with ad-hoc code signing
+# This allows macOS to remember camera/microphone permissions between launches
 echo "Building Release configuration..."
 xcodebuild \
     -project Iris.xcodeproj \
     -scheme Iris \
     -configuration Release \
     clean build \
-    CODE_SIGN_IDENTITY="-" \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGN_IDENTITY="-"
 
 echo "✅ Build complete!"
-echo "Built app location: Iris/build/Release/Iris.app"
+echo "Built app location: ~/Library/Developer/Xcode/DerivedData/Iris-*/Build/Products/Release/Iris.app"
