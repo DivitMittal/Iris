@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v2.1.0, etc.
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: macos-latest
+
+    permissions:
+      contents: write  # Required to create releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Show build environment
+        run: |
+          echo "Xcode version:"
+          xcodebuild -version
+          echo ""
+          echo "Available SDKs:"
+          xcodebuild -showsdks | grep macosx
+
+      - name: Build Release
+        run: |
+          cd Iris
+          xcodebuild \
+            -project Iris.xcodeproj \
+            -scheme Iris \
+            -configuration Release \
+            -derivedDataPath build \
+            clean build \
+            CODE_SIGN_IDENTITY="-"
+
+      - name: Verify build output
+        run: |
+          echo "Built app contents:"
+          ls -la Iris/build/Build/Products/Release/
+          echo ""
+          echo "App bundle info:"
+          cat Iris/build/Build/Products/Release/Iris.app/Contents/Info.plist | head -30
+
+      - name: Create zip archive
+        run: |
+          cd Iris/build/Build/Products/Release
+          zip -r -y "Iris-${{ github.ref_name }}.zip" Iris.app
+          echo ""
+          echo "Created archive:"
+          ls -lh "Iris-${{ github.ref_name }}.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Iris/build/Build/Products/Release/Iris-${{ github.ref_name }}.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          body: |
+            ## Installation
+
+            1. Download `Iris-${{ github.ref_name }}.zip` below
+            2. Unzip the file
+            3. Move `Iris.app` to your Applications folder
+            4. **First launch**: Right-click (or Control-click) on Iris.app and select "Open"
+            5. Click "Open" in the security dialog
+
+            > ⚠️ macOS may show a warning because the app isn't notarized. This is normal for open-source apps distributed outside the Mac App Store.

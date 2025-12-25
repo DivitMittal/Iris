@@ -23,7 +23,21 @@ principles and [design/](design/) for feature specifications.
 * **Mirror View** - Toggle between mirrored view (like looking in a mirror, default)
   and non-mirrored view (how others see you)
 
-## Requirements
+## Installation
+
+### Download Pre-built App (Recommended)
+
+1. Download the latest `Iris-vX.X.X.zip` from the [Releases](../../releases) page
+2. Unzip the file
+3. Move `Iris.app` to your Applications folder
+4. **First launch**: Right-click (or Control-click) on Iris.app and select "Open"
+5. Click "Open" in the security dialog
+
+> ⚠️ macOS may show a warning because the app isn't notarized. This is normal for open-source apps distributed outside the Mac App Store.
+
+### Build from Source
+
+#### Requirements
 
 * macOS 13.0 or later
 * **Full Xcode installation** (not just Command Line Tools)
@@ -109,6 +123,23 @@ iris/
 ├── run.sh                    # Run script
 └── clean.sh                  # Clean script
 ```
+
+## Creating a Release
+
+Releases are automated via GitHub Actions. To create a new release:
+
+```bash
+# Tag the release
+git tag v1.0.0
+
+# Push the tag to GitHub
+git push origin v1.0.0
+```
+
+GitHub Actions will automatically:
+- Build the app on a macOS runner
+- Create a zip archive
+- Publish a GitHub Release with the zip attached
 
 ## Troubleshooting
 
