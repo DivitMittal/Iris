@@ -75,7 +75,16 @@ Iris is a complete macOS application that displays a webcam feed in a circular, 
 - Smart position restoration with multi-monitor support
 - Off-screen detection and correction
 
-### 7. Launch at Login ✅
+### 7. Mirror View ✅
+**Files**: `CircularContentView.swift`, `MenuBarController.swift`, `PreferencesManager.swift`
+
+- Toggle between mirrored and non-mirrored camera view
+- Mirrored by default (like video call apps - FaceTime, Zoom, etc.)
+- CATransform3D horizontal flip for mirror effect
+- Persisted preference
+- Menu checkbox to toggle
+
+### 8. Launch at Login ✅
 **File**: `MenuBarController.swift`
 
 - SMAppService integration (macOS 13+)

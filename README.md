@@ -20,7 +20,8 @@ principles and [design/](design/) for feature specifications.
 * **Persistent State** - Remembers size, position, and camera selection
 * **Sound Indicator** - Visual indicator around the mirror view to show when
   microphone is picking up sound
-* **Mirrored view** - Option to switch between mirrored and unmirrored view.
+* **Mirror View** - Toggle between mirrored view (like looking in a mirror, default)
+  and non-mirrored view (how others see you)
 
 ## Requirements
 
@@ -59,6 +60,8 @@ The built application will be located at `Iris/build/Release/Iris.app`.
 4. Click the icon to toggle the window visibility
 5. Right-click the icon (or click and hold) to access:
    - Camera selection
+   - Sound Indicator settings
+   - Mirror View toggle
    - Launch at login setting
    - Quit option
 

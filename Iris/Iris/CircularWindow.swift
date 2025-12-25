@@ -79,6 +79,9 @@ class CircularWindow: NSWindow {
         // Start audio visualization
         audioManager?.startMonitoring()
         circularView.startWaveAnimation()
+
+        // Apply mirror setting
+        circularView.setMirrored(PreferencesManager.shared.mirrorView)
     }
 
     func hide() {
@@ -88,6 +91,10 @@ class CircularWindow: NSWindow {
         // Stop audio visualization
         audioManager?.stopMonitoring()
         circularView.stopWaveAnimation()
+    }
+
+    func setMirrored(_ mirrored: Bool) {
+        circularView.setMirrored(mirrored)
     }
 }
 

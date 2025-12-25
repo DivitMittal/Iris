@@ -33,8 +33,6 @@ class MenuBarController: NSObject {
 
     func setAudioManager(_ audioManager: AudioManager) {
         self.audioManager = audioManager
-        // Refresh menu
-        statusItem?.menu = createMenu()
     }
 
     deinit {
@@ -69,21 +67,19 @@ class MenuBarController: NSObject {
         }
 
         // Set tooltip
-        button.toolTip = "Iris - Click to toggle window"
+        button.toolTip = "Iris - Click to toggle, right-click for menu"
 
-        // Set action - click to toggle
-        button.action = #selector(statusItemClicked)
+        // Handle clicks manually (not setting menu allows us to differentiate click types)
+        button.action = #selector(statusItemClicked(_:))
         button.target = self
-
-        // Set menu for right-click
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        statusItem.menu = createMenu()
+
+        // Don't set menu directly - we'll show it programmatically on right-click
+        // statusItem.menu = nil
     }
 
     func setWindow(_ window: CircularWindow) {
         self.circularWindow = window
-        // Refresh menu
-        statusItem?.menu = createMenu()
     }
 
     // MARK: - Menu Creation
@@ -122,6 +118,16 @@ class MenuBarController: NSObject {
         let microphoneSubmenu = createMicrophoneSubmenu()
         microphoneMenuItem.submenu = microphoneSubmenu
         menu.addItem(microphoneMenuItem)
+
+        // Mirror View toggle
+        let mirrorItem = NSMenuItem(
+            title: "Mirror View",
+            action: #selector(toggleMirrorView),
+            keyEquivalent: ""
+        )
+        mirrorItem.target = self
+        mirrorItem.state = PreferencesManager.shared.mirrorView ? .on : .off
+        menu.addItem(mirrorItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -245,8 +251,25 @@ class MenuBarController: NSObject {
     }
 
     // MARK: - Actions
-    @objc func statusItemClicked() {
-        toggleWindow()
+    @objc func statusItemClicked(_ sender: Any?) {
+        guard let event = NSApp.currentEvent else {
+            toggleWindow()
+            return
+        }
+
+        if event.type == .rightMouseUp {
+            // Right-click: show menu
+            showMenu()
+        } else {
+            // Left-click: toggle window
+            toggleWindow()
+        }
+    }
+
+    private func showMenu() {
+        guard let button = statusItem?.button else { return }
+        let menu = createMenu()
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 5), in: button)
     }
 
     @objc func toggleWindow() {
@@ -260,9 +283,6 @@ class MenuBarController: NSObject {
         } else {
             window.show()
         }
-
-        // Update menu
-        statusItem?.menu = createMenu()
     }
 
     @objc func selectCamera(_ sender: NSMenuItem) {
@@ -271,11 +291,6 @@ class MenuBarController: NSObject {
         Task {
             do {
                 try await cameraManager.switchToCamera(device)
-
-                // Update menu checkmarks on main thread
-                await MainActor.run {
-                    self.statusItem?.menu = self.createMenu()
-                }
             } catch {
                 // Show error alert on main thread
                 await MainActor.run {
@@ -292,11 +307,6 @@ class MenuBarController: NSObject {
         Task {
             do {
                 try await audioManager.switchToMicrophone(device)
-
-                // Update menu checkmarks on main thread
-                await MainActor.run {
-                    self.statusItem?.menu = self.createMenu()
-                }
             } catch {
                 // Show error alert on main thread
                 await MainActor.run {
@@ -306,14 +316,20 @@ class MenuBarController: NSObject {
         }
     }
 
+    @objc func toggleMirrorView() {
+        let newValue = !PreferencesManager.shared.mirrorView
+        PreferencesManager.shared.mirrorView = newValue
+
+        // Update the window
+        circularWindow?.setMirrored(newValue)
+    }
+
     @objc func toggleLaunchAtLogin() {
         if isLaunchAtLoginEnabled() {
             disableLaunchAtLogin()
         } else {
             enableLaunchAtLogin()
         }
-        // Refresh menu to update checkbox
-        statusItem?.menu = createMenu()
     }
 
     @objc func quit() {
@@ -328,8 +344,7 @@ class MenuBarController: NSObject {
     }
 
     @objc func devicesDidChange() {
-        // Refresh camera submenu
-        statusItem?.menu = createMenu()
+        // Menu will be refreshed on next right-click
     }
 
     // MARK: - Launch at Login

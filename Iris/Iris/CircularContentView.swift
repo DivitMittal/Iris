@@ -120,6 +120,22 @@ class CircularContentView: NSView {
         }
     }
 
+    // MARK: - Mirror View
+    func setMirrored(_ mirrored: Bool) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+
+        if mirrored {
+            // Flip horizontally (like looking in a mirror)
+            previewLayer?.transform = CATransform3DMakeScale(-1, 1, 1)
+        } else {
+            // Normal view (how others see you)
+            previewLayer?.transform = CATransform3DIdentity
+        }
+
+        CATransaction.commit()
+    }
+
     // MARK: - Glow Setup
     private func setupGlowLayer() {
         // Create radial gradient layer for inward glow

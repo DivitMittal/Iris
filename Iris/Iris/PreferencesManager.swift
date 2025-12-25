@@ -16,6 +16,7 @@ class PreferencesManager {
         static let selectedCameraID = "com.iris.app.selectedCameraID"
         static let selectedMicrophoneID = "com.iris.app.selectedMicrophoneID"
         static let launchAtLogin = "com.iris.app.launchAtLogin"
+        static let mirrorView = "com.iris.app.mirrorView"
         static let firstLaunch = "com.iris.app.firstLaunch"
     }
 
@@ -84,6 +85,20 @@ class PreferencesManager {
         }
         set {
             defaults.set(newValue, forKey: Keys.launchAtLogin)
+        }
+    }
+
+    // MARK: - Mirror View
+    var mirrorView: Bool {
+        get {
+            // Default to true (mirrored, like video call apps)
+            if defaults.object(forKey: Keys.mirrorView) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.mirrorView)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.mirrorView)
         }
     }
 
