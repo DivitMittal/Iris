@@ -25,6 +25,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController.setupMenuBar()
         debugLog("Menu bar setup complete")
 
+        HotkeyManager.shared.setToggleAction { [weak self] in
+            self?.menuBarController.toggleWindow()
+        }
+        HotkeyManager.shared.startMonitoring()
+        debugLog("HotkeyManager initialized")
+
         // Request camera permission and setup
         Task {
             do {

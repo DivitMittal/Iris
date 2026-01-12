@@ -583,6 +583,11 @@ class MenuBarController: NSObject {
         iconMenuItem.submenu = iconSubmenu
         menu.addItem(iconMenuItem)
 
+        let hotkeyMenuItem = NSMenuItem(title: "Toggle Hotkey", action: nil, keyEquivalent: "")
+        let hotkeySubmenu = createHotkeySubmenu()
+        hotkeyMenuItem.submenu = hotkeySubmenu
+        menu.addItem(hotkeyMenuItem)
+
         menu.addItem(NSMenuItem.separator())
 
         // Quit
@@ -715,6 +720,34 @@ class MenuBarController: NSObject {
         return menu
     }
 
+    private func createHotkeySubmenu() -> NSMenu {
+        let menu = NSMenu()
+
+        let isEnabled = PreferencesManager.shared.toggleHotkeyEnabled
+        let currentHotkey = HotkeyManager.shared.currentHotkeyDisplayString()
+
+        let enabledItem = NSMenuItem(
+            title: isEnabled ? "Enabled (\(currentHotkey))" : "Disabled",
+            action: #selector(toggleHotkeyEnabled),
+            keyEquivalent: ""
+        )
+        enabledItem.target = self
+        enabledItem.state = isEnabled ? .on : .off
+        menu.addItem(enabledItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        let recordItem = NSMenuItem(
+            title: "Record Hotkey...",
+            action: #selector(showHotkeyRecorderPanel),
+            keyEquivalent: ""
+        )
+        recordItem.target = self
+        menu.addItem(recordItem)
+
+        return menu
+    }
+
     // MARK: - Actions
     @objc func statusItemClicked(_ sender: Any?) {
         guard let event = NSApp.currentEvent else {
@@ -794,6 +827,55 @@ class MenuBarController: NSObject {
         currentIconStyle = style
         updateMenuBarIcon()
         debugLog("Icon style changed to: \(style.displayName)")
+    }
+
+    @objc func toggleHotkeyEnabled() {
+        let newValue = !PreferencesManager.shared.toggleHotkeyEnabled
+        PreferencesManager.shared.toggleHotkeyEnabled = newValue
+        if newValue {
+            HotkeyManager.shared.startMonitoring()
+        } else {
+            HotkeyManager.shared.stopMonitoring()
+        }
+    }
+
+    @objc func showHotkeyRecorderPanel() {
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 120),
+            styleMask: [.titled, .closable, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.title = "Record Hotkey"
+        panel.isFloatingPanel = true
+        panel.becomesKeyOnlyIfNeeded = false
+        panel.level = .floating
+        panel.center()
+
+        let contentView = NSView(frame: panel.contentView!.bounds)
+
+        let label = NSTextField(labelWithString: "Press a key combination:")
+        label.frame = NSRect(x: 20, y: 80, width: 280, height: 20)
+        contentView.addSubview(label)
+
+        let recorderView = HotkeyRecorderView(frame: NSRect(x: 20, y: 35, width: 280, height: 35))
+        recorderView.setDisplayString(HotkeyManager.shared.currentHotkeyDisplayString())
+        recorderView.onHotkeyRecorded = { [weak panel] keyCode, modifiers in
+            PreferencesManager.shared.toggleHotkeyKeyCode = keyCode
+            PreferencesManager.shared.toggleHotkeyModifiers = modifiers.rawValue
+            PreferencesManager.shared.toggleHotkeyEnabled = true
+            HotkeyManager.shared.restartMonitoring()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                panel?.close()
+            }
+        }
+        contentView.addSubview(recorderView)
+
+        panel.contentView = contentView
+        panel.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        panel.makeFirstResponder(recorderView)
     }
 
     @objc func toggleLaunchAtLogin() {

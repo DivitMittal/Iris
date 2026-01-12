@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import Cocoa
 
 class PreferencesManager {
 
@@ -18,6 +19,9 @@ class PreferencesManager {
         static let launchAtLogin = "com.iris.app.launchAtLogin"
         static let mirrorView = "com.iris.app.mirrorView"
         static let firstLaunch = "com.iris.app.firstLaunch"
+        static let toggleHotkeyEnabled = "com.iris.app.toggleHotkeyEnabled"
+        static let toggleHotkeyKeyCode = "com.iris.app.toggleHotkeyKeyCode"
+        static let toggleHotkeyModifiers = "com.iris.app.toggleHotkeyModifiers"
     }
 
     // MARK: - Window Size
@@ -110,6 +114,38 @@ class PreferencesManager {
         set {
             // Set to true means it's NOT first launch anymore
             defaults.set(!newValue, forKey: Keys.firstLaunch)
+        }
+    }
+
+    // MARK: - Toggle Hotkey
+    var toggleHotkeyEnabled: Bool {
+        get {
+            defaults.bool(forKey: Keys.toggleHotkeyEnabled)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.toggleHotkeyEnabled)
+        }
+    }
+
+    var toggleHotkeyKeyCode: UInt16 {
+        get {
+            // Default to 'I' key (keyCode 34)
+            let value = defaults.integer(forKey: Keys.toggleHotkeyKeyCode)
+            return value > 0 ? UInt16(value) : 34
+        }
+        set {
+            defaults.set(Int(newValue), forKey: Keys.toggleHotkeyKeyCode)
+        }
+    }
+
+    var toggleHotkeyModifiers: UInt {
+        get {
+            // Default to Cmd+Shift (NSEvent.ModifierFlags.command | .shift)
+            let value = defaults.integer(forKey: Keys.toggleHotkeyModifiers)
+            return value > 0 ? UInt(value) : UInt(NSEvent.ModifierFlags.command.rawValue | NSEvent.ModifierFlags.shift.rawValue)
+        }
+        set {
+            defaults.set(Int(newValue), forKey: Keys.toggleHotkeyModifiers)
         }
     }
 
