@@ -127,7 +127,12 @@ class ResizableCircularView: CircularContentView {
     // MARK: - Constants
     private let edgeThreshold: CGFloat = 18
     private let minSize: CGFloat = 100
-    private let maxSize: CGFloat = 600
+    
+    private var maxSize: CGFloat {
+        // Allow up to the smaller dimension of the current screen
+        guard let screen = window?.screen ?? NSScreen.main else { return 800 }
+        return min(screen.visibleFrame.width, screen.visibleFrame.height)
+    }
 
     private var edgeHighlightLayer: CAShapeLayer?
 
