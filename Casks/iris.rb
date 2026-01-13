@@ -1,6 +1,6 @@
 cask "iris" do
-  version "0.1.2"
-  sha256 "8d1c6fd7276dba96e2f1337d3c5bddc99c360a9055f06d8613a5d8044afb53a2"
+  version "0.1.3"
+  sha256 "e4cf0c11fb4bdb3b5b9403abf1cae88994dc90122c8931dffa3d1cb98360edd4"
 
   url "https://github.com/ahmetb/Iris/releases/download/v#{version}/Iris-v#{version}.zip"
   name "Iris"
