@@ -140,9 +140,9 @@ class PreferencesManager {
 
     var toggleHotkeyModifiers: UInt {
         get {
-            // Default to Cmd+Shift (NSEvent.ModifierFlags.command | .shift)
+            // Default to Alt+Shift (NSEvent.ModifierFlags.option | .shift)
             let value = defaults.integer(forKey: Keys.toggleHotkeyModifiers)
-            return value > 0 ? UInt(value) : UInt(NSEvent.ModifierFlags.command.rawValue | NSEvent.ModifierFlags.shift.rawValue)
+            return value > 0 ? UInt(value) : UInt(NSEvent.ModifierFlags.option.rawValue | NSEvent.ModifierFlags.shift.rawValue)
         }
         set {
             defaults.set(Int(newValue), forKey: Keys.toggleHotkeyModifiers)
