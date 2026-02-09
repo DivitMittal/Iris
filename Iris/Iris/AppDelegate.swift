@@ -83,6 +83,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             PreferencesManager.shared.windowPosition = window.frame.origin
         }
 
+        // Cleanup hotkey handler
+        HotkeyManager.shared.stopMonitoring()
+
         // Cleanup camera resources
         cameraManager?.stopSession()
 

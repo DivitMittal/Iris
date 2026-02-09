@@ -129,9 +129,12 @@ class PreferencesManager {
 
     var toggleHotkeyKeyCode: UInt16 {
         get {
-            // Default to 'I' key (keyCode 34)
-            let value = defaults.integer(forKey: Keys.toggleHotkeyKeyCode)
-            return value > 0 ? UInt16(value) : 34
+            // Use object(forKey:) to distinguish nil from stored 0
+            // keyCode 0 is the 'A' key, which is valid
+            if defaults.object(forKey: Keys.toggleHotkeyKeyCode) == nil {
+                return 34 // Default to 'I' key
+            }
+            return UInt16(defaults.integer(forKey: Keys.toggleHotkeyKeyCode))
         }
         set {
             defaults.set(Int(newValue), forKey: Keys.toggleHotkeyKeyCode)
@@ -140,9 +143,12 @@ class PreferencesManager {
 
     var toggleHotkeyModifiers: UInt {
         get {
-            // Default to Alt+Shift (NSEvent.ModifierFlags.option | .shift)
-            let value = defaults.integer(forKey: Keys.toggleHotkeyModifiers)
-            return value > 0 ? UInt(value) : UInt(NSEvent.ModifierFlags.option.rawValue | NSEvent.ModifierFlags.shift.rawValue)
+            // Use object(forKey:) to distinguish nil from stored 0
+            if defaults.object(forKey: Keys.toggleHotkeyModifiers) == nil {
+                // Default to Alt+Shift (NSEvent.ModifierFlags.option | .shift)
+                return UInt(NSEvent.ModifierFlags.option.rawValue | NSEvent.ModifierFlags.shift.rawValue)
+            }
+            return UInt(defaults.integer(forKey: Keys.toggleHotkeyModifiers))
         }
         set {
             defaults.set(Int(newValue), forKey: Keys.toggleHotkeyModifiers)
